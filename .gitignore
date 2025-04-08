@@ -172,3 +172,13 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Entorno virtual
+.venv/
+
+# orientación
+/problema.txt
+/sim_proy_1.md
+
+# ajustes ortográficos para mi extensión Spell
+/cspell.json
