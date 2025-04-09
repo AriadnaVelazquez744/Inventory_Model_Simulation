@@ -1,0 +1,158 @@
+\documentclass{report}
+\usepackage[spanish]{babel}
+\usepackage{enumerate}
+\usepackage{amsmath} 
+\usepackage{graphicx}
+\usepackage[left=2.5cm, right=2.5cm, top=3cm, bottom=3cm]{geometry}
+
+\title{Simulación de Gestión de Inventario en una Tienda}
+\author{Ariadna Velázquez Rey     C31}
+\date{ }
+
+\begin{document}
+
+\maketitle
+
+\section*{S1. Introducción}
+
+Este informe presenta una simulación basada en eventos discretos para analizar la gestión de inventario de una tienda, siguiendo el modelo del Ejemplo 7.6 del libro \textit{''Simulation''} de Sheldon M. Ross. El sistema simulado busca estimar la ganancia promedio por unidad de tiempo y determinar una política \((s, S)\) óptima para el manejo de inventario.
+
+\subsection*{Objetivos}
+
+\begin{itemize}
+\item Estimar el beneficio esperado del sistema hasta un tiempo final predefinido \(T\).
+\item Evaluar diferentes políticas de inventario \((s, S)\) y determinar cuál maximiza la ganancia.
+\item Analizar la sensibilidad del sistema a variaciones en parámetros clave como la demanda, el costo de almacenamiento y la tasa de llegadas.
+\end{itemize}
+
+\subsection*{Variables del sistema}
+
+\begin{itemize}
+\item \(x\): Inventario disponible.
+\item \(y\): Inventario pedido pero no recibido.
+\item \(t\): Tiempo actual del sistema.
+\item \(t_0\): Tiempo de llegada del próximo cliente.
+\item \(t_1\): Tiempo de entrega del pedido en curso.
+\item \(C\): Costos acumulados de pedidos.
+\item \(H\): Costos acumulados de almacenamiento.
+\item \(R\): Ingresos acumulados por ventas.
+\end{itemize}
+
+
+\section*{S2. Detalles de Implementación}
+
+\subsection*{Descripción de la lógica del modelo}
+
+\begin{itemize}
+\item El sistema evoluciona en función de eventos: llegada de clientes (Poisson) y entregas de pedidos.
+\item La demanda de cada cliente sigue una distribución geométrica desplazada: \(D \sim Geom(p=0.3)+1\).
+\item Se sigue una política \((s, S)\): cuando el inventario \(x < s\) y \(y = 0\), se realiza un pedido de \(S - x\) unidades.
+\item El sistema inicia en \(x = S\), sin pedidos en curso.
+\end{itemize}
+
+\subsection*{Algoritmo de simulación (resumen)}
+
+\begin{enumerate}
+\item Iniciar con \(t=0\), \(x=S\), \(y=0\).
+\item Programar \(t_0\) como la próxima llegada de cliente.
+\item Repetir hasta \(t \geq T\):
+  \begin{itemize}
+  \item Si \(t_0 < t_1\): procesar cliente, actualizar inventario y ventas.
+  \item Si \(t_1 \leq t_0\): recibir pedido, actualizar inventario y costos.
+  \end{itemize}
+\item Calcular beneficio promedio: \[ \text{Ganancia Promedio} = \frac{R - C - H}{T} \]
+\end{enumerate}
+
+\subsection*{Implementación computacional}
+
+\begin{itemize}
+\item Lenguaje: Python
+\item Librerías: NumPy, Pandas, Seaborn, Matplotlib
+\item Se ejecutaron 1000 réplicas para estabilizar resultados.
+\item Se exploraron 9 combinaciones de políticas \((s, S)\).
+\end{itemize}
+
+
+\section*{S3. Resultados y Experimentos}
+
+\subsection*{Hallazgos principales}
+
+\begin{itemize}
+\item Para \((s=5, S=20)\) se obtuvo una ganancia promedio positiva con distribución simétrica.
+\item La distribución de ganancias fue aproximadamente normal, lo cual valida la cantidad de réplicas.
+\item El heatmap de políticas muestra que los mejores resultados se obtuvieron con \((s=5, S=25)\) y \((s=5, S=20)\).
+\end{itemize}
+
+\subsection*{Interpretación de resultados}
+
+\begin{itemize}
+\item Políticas con valores altos de \(S\) generan mayores ingresos pero también mayores costos de almacenamiento.
+\item Políticas con valores bajos de \(s\) tienden a generar pedidos más frecuentes.
+\end{itemize}
+
+\subsection*{Validación y experimentos}
+
+\begin{itemize}
+\item Se comparó el rendimiento promedio de cada política \((s, S)\).
+\item Se graficó la relación entre ingresos y costos totales para validar el comportamiento económico del sistema.
+\end{itemize}
+
+\subsection*{Variables de interés analizadas}
+
+\begin{itemize}
+\item Ganancia promedio
+\item Costo total
+\item Ingresos totales
+\end{itemize}
+
+\subsection*{Análisis de parada}
+
+\begin{itemize}
+\item Se detiene la simulación al superar un tiempo \(T = 30\).
+\item El comportamiento de la ganancia promedio estabiliza luego de $\sim$800 réplicas.
+\end{itemize}
+
+
+\section*{S4. Modelo Matemático}
+
+\subsection*{Definición del modelo}
+
+\begin{itemize}
+\item Llegadas: proceso Poisson con tasa \(\lambda = 2\).
+\item Demanda: variable aleatoria geométrica desplazada: \(D \sim Geom(0.3)+1\).
+\item Tiempo de entrega fijo: \(L = 2\).
+\item Costos:
+  \[ c(y) = 5y, \quad h = 0.5 \text{ por unidad-tiempo} \]
+\item Ingreso por unidad vendida: \(r = 10\)
+\end{itemize}
+
+\subsection*{Supuestos}
+
+\begin{itemize}
+\item No hay backorders: demanda insatisfecha se pierde.
+\item No hay costo fijo de ordenar, solo variable.
+\item El sistema comienza lleno \(x = S\).
+\end{itemize}
+
+\subsection*{Comparación con resultados empíricos}
+
+\begin{itemize}
+\item La simulación reproduce el comportamiento esperado del modelo.
+\item Las ganancias calculadas empíricamente concuerdan con el modelo teórico bajo distribuciones Poisson y geométrica.
+\end{itemize}
+
+
+\section*{S5. Conclusiones}
+
+\begin{itemize}
+\item El modelo basado en eventos discretos permite simular fielmente la dinámica de inventario.
+\item La simulación es sensible a la política \((s, S)\) seleccionada, afectando costos, ingresos y nivel de servicio.
+\item Se identificó \((s=5, S=25)\) como una de las mejores políticas bajo los parámetros actuales.
+\item Se recomienda realizar análisis de sensibilidad para validar la robustez de la política seleccionada ante cambios en \(\lambda, h, r\) y distribución de demanda.
+\item La herramienta de simulación puede extenderse para evaluar escenarios con demanda no estacionaria o tiempos de entrega aleatorios.
+\end{itemize}
+
+
+\end{document}
+
+

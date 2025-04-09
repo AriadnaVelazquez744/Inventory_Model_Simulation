@@ -182,3 +182,10 @@ cython_debug/
 
 # ajustes ortográficos para mi extensión Spell
 /cspell.json
+
+# archivos innecesarios generados por el latex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
