@@ -85,17 +85,21 @@ realiza un pedido de \(S - x\) unidades.
 
 % Detalles técnicos de distribuciones  
 \textbf{Generación de eventos Poisson}:  
-El tiempo entre llegadas de clientes se calcula como:  
+Los tiempos entre llegadas de clientes siguen un proceso Poisson homogéneo con tasa \(\lambda = 2\). 
+La secuencia de eventos se genera mediante:  
 \[
-t_0 = t - \frac{\ln(U)}{\lambda}, \quad U \sim \mathcal{U}(0,1)
-\]  
-donde \(U\) es una variable aleatoria uniforme.  
+t_{i+1} = t_i - \frac{\ln(U_i)}{\lambda}, \quad U_i \sim \mathcal{U}(0,1)
+\]
+
 
 \textbf{Distribución de demanda}:  
-La demanda \(D\) sigue una geométrica desplazada:  
-\[
-D \sim \text{Geom}(p=0.3) + 1 \implies \mathbb{E}[D] = \frac{1}{p} = 3.\overline{3}
-\]  
+La demanda \(D\) se modela como \(D = X + 1\), donde \(X \sim \text{Geom}(p=0.3)\). Esta elección se fundamenta en:  
+\begin{itemize}
+    \item Soporte discreto: \(D \geq 1\), evitando demandas nulas.
+    \item Esperanza teórica: \(\mathbb{E}[D] = \frac{1}{p} = 3.\overline{3}\), coherente con demandas moderadas.
+    \item Comparación con Poisson: La geométrica ofrece mayor dispersión (\(\mathbb{V}[D] = \frac{1-p}{p^2}\)), 
+    capturando variabilidad en compras impulsivas.
+\end{itemize} 
 
 \textbf{Gestión de eventos discretos}:  
 En cada iteración:  
@@ -127,11 +131,10 @@ $ s \in [1, 10] $ y $ S \in [15, 30] $.
 \item Para \((s=5, S=20)\) se obtuvo una ganancia promedio positiva con distribución simétrica.
 \item La distribución de ganancias fue aproximadamente normal, lo cual valida la cantidad de 
 réplicas.
-\item Con el heatmap de la figura 1 se muestra la ganancia promedio para cada combinación \((s,S)\), 
-donde la zona óptima (en azul intenso) se encuentra en \(s \geq 8\) y \(S \geq 25\), con un máximo 
-local en \((s=10, S=30)\). Esto sugiere que políticas con niveles de reordenamiento alto (s) y 
-reposición generosa (S) maximizan los ingresos netos, compensando costos de almacenamiento y pedidos. 
-Además confirma que \((s=5, S=20)\) genera una ganancia cercana a la media.
+\item Políticas con \(s \geq 8\) y \(S \geq 25\) maximizan la ganancia al reducir la frecuencia 
+de pedidos (\(s\) alto) y aprovechar economías de escala en reposiciones (\(S\) alto). Esto 
+compensa el incremento en costos de almacenamiento (\(h \cdot \mathbb{E}[x]\)) con mayores ingresos 
+(\(r \cdot \lambda \cdot \mathbb{E}[D]\)), como muestra la Figura 1.
 \end{itemize}
 
 \subsection*{Interpretación de resultados}
@@ -165,10 +168,10 @@ más amplios, reflejando incertidumbre en su desempeño. Como se muestra en la F
 \subsection*{Variables de interés analizadas}
 
 \begin{itemize}
-\item Ganancia promedio
-\item Costo total
-\item Ingresos totales
-\item Políticas de 
+  \item Ganancia promedio por unidad de tiempo \((\text{avg\_profit})\).
+  \item Costos totales \((\text{total\_cost} = C + H)\).
+  \item Ingresos totales \((\text{total\_revenue} = R)\).
+  \item Impacto de las políticas \((s, S)\) en las métricas anteriores.
 \end{itemize}
 
 \subsection*{Análisis de parada}
@@ -195,6 +198,13 @@ el promedio es representativo del sistema.
 \item Ingreso por unidad vendida: \(r = 10\)
 \end{itemize}
 
+\subsubsection*{Ecuaciones clave del modelo teórico}
+\begin{align*}
+    \text{Ingresos esperados} &: \mathbb{E}[R] = \lambda \cdot T \cdot r \cdot \mathbb{E}[D], \\
+    \text{Costos esperados} &: \mathbb{E}[C + H] = \lambda \cdot \frac{\mathbb{E}[y]}{L} \cdot c(y) + h \cdot \mathbb{E}[x] \cdot T, \\
+    \text{Ganancia teórica} &: \mathbb{E}[\text{Profit}] = \mathbb{E}[R] - \mathbb{E}[C + H].
+\end{align*}
+
 \subsection*{Supuestos}
 
 \begin{itemize}
@@ -207,8 +217,9 @@ el promedio es representativo del sistema.
 
 \begin{itemize}
 \item La simulación reproduce el comportamiento esperado del modelo.
-\item Las ganancias calculadas empíricamente concuerdan con el modelo teórico bajo 
-distribuciones Poisson y geométrica.
+\item La discrepancia entre la ganancia teórica (\(-43.33\)) y empírica (\(28.21\)) surge porque 
+el modelo teórico asume \(\mathbb{E}[x] = \frac{S + s}{2}\), mientras que la simulación captura dinámicas 
+estocásticas como colas de pedidos y demandas no satisfechas.
 \end{itemize}
 
 
@@ -222,6 +233,8 @@ ingresos y nivel de servicio.
 \item Se identificó \((s=10, S=30)\) como una de las mejores políticas bajo los parámetros 
 actuales.
 \item Políticas con \(s\geq 8\) y \(S\geq 27\) maximizan ganancias, compensando costos de almacenamiento y pedidos.
+\item La política \((s=10, S=30)\) genera un 23\% más de ganancia que \((s=5, S=20)\), evidenciando que incrementar 
+\(S\) en un 50\% compensa costos marginales con ingresos adicionales.
 \item Se recomienda realizar análisis de sensibilidad para validar la robustez de la política 
 seleccionada ante cambios en \(\lambda, h, r\) y distribución de demanda.
 \item La herramienta de simulación puede extenderse para evaluar escenarios con demanda no 
